@@ -1,6 +1,58 @@
 openapi: 3.1.0
 info:
   title: Food Court Users API
-  version: 0.0.1
-  description: Base técnica sin historias de usuario.
-paths: {}
+  version: 1.0.0
+  description: Gestión de usuarios de la plazoleta de comidas.
+servers:
+  - url: /api/v1
+paths:
+  /users:
+    post:
+      operationId: createUser
+      summary: Crear un usuario
+      description: En HU-01 solamente se permite crear usuarios OWNER (roleId 2).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserRequest' }
+      responses:
+        '201':
+          description: Propietario creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponseEnvelope' }
+        '400': { description: Datos inválidos, propietario menor de edad, email o documento duplicado, content: { application/json: { schema: { $ref: '#/components/schemas/ExceptionResponse' } } } }
+components:
+  schemas:
+    UserRequest:
+      type: object
+      required: [name, lastName, identityDocument, cellphone, birthDate, email, password, roleId]
+      properties:
+        name: { type: string, minLength: 1 }
+        lastName: { type: string, minLength: 1 }
+        identityDocument: { type: string, pattern: '^\d+$' }
+        cellphone: { type: string, maxLength: 13, pattern: '^\+?\d+$', example: '+573005698325' }
+        birthDate: { type: string, format: date }
+        email: { type: string, format: email }
+        password: { type: string, format: password, writeOnly: true }
+        roleId: { type: integer, format: int64, description: 'HU-01: 2 (OWNER)', example: 2 }
+    UserResponse:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        lastName: { type: string }
+        email: { type: string, format: email }
+        roleId: { type: integer, format: int64 }
+        role: { type: string, example: OWNER }
+    UserResponseEnvelope:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/UserResponse' }
+    ExceptionResponse:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties: { type: string }
