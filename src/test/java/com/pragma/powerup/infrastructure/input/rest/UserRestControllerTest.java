@@ -3,9 +3,11 @@ package com.pragma.powerup.infrastructure.input.rest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.pragma.powerup.application.dto.response.UserResponseDto;
+import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
 import com.pragma.powerup.application.handler.IUserHandler;
 import com.pragma.powerup.infrastructure.exceptionhandler.ControllerAdvisor;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,14 @@ class UserRestControllerTest {
         mvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors").isMap());
+    }
+
+    @Test void returnsTheUsersRole() throws Exception {
+        when(handler.getUserRole(7L)).thenReturn(new UserRoleResponseDto(7L, "OWNER"));
+
+        mvc.perform(get("/users/7/role"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.role").value("OWNER"));
     }
 
     private String validBody() {

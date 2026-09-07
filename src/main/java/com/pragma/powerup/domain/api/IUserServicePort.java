@@ -4,4 +4,5 @@ import com.pragma.powerup.domain.model.User;
 
 public interface IUserServicePort {
     User createUser(User user);
+    User getUserById(Long userId);
 }

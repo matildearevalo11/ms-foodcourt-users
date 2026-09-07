@@ -6,8 +6,10 @@ import static org.mockito.Mockito.when;
 
 import com.pragma.powerup.application.dto.request.UserRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
+import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
 import com.pragma.powerup.application.mapper.IUserRequestMapper;
 import com.pragma.powerup.application.mapper.IUserResponseMapper;
+import com.pragma.powerup.application.mapper.IUserRoleResponseMapper;
 import com.pragma.powerup.domain.api.IUserServicePort;
 import com.pragma.powerup.domain.model.User;
 import java.time.LocalDate;
@@ -21,6 +23,7 @@ class UserHandlerTest {
     @Mock IUserServicePort servicePort;
     @Mock IUserRequestMapper requestMapper;
     @Mock IUserResponseMapper responseMapper;
+    @Mock IUserRoleResponseMapper roleResponseMapper;
 
     @Test
     void delegatesMappingAndCreationToTheApplicationPorts() {
@@ -33,9 +36,20 @@ class UserHandlerTest {
         when(servicePort.createUser(mapped)).thenReturn(saved);
         when(responseMapper.toResponse(saved)).thenReturn(expected);
 
-        UserHandler handler = new UserHandler(servicePort, requestMapper, responseMapper);
+        UserHandler handler = new UserHandler(servicePort, requestMapper, responseMapper, roleResponseMapper);
 
         assertThat(handler.createUser(request)).isEqualTo(expected);
         verify(servicePort).createUser(mapped);
+    }
+
+    @Test
+    void returnsOnlyTheRequestedUsersRole() {
+        User user = new User();
+        UserRoleResponseDto expected = new UserRoleResponseDto(1L, "OWNER");
+        when(servicePort.getUserById(1L)).thenReturn(user);
+        when(roleResponseMapper.toResponse(user)).thenReturn(expected);
+        UserHandler handler = new UserHandler(servicePort, requestMapper, responseMapper, roleResponseMapper);
+
+        assertThat(handler.getUserRole(1L)).isEqualTo(expected);
     }
 }

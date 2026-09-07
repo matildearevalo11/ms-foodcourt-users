@@ -1,10 +1,12 @@
 package com.pragma.powerup.infrastructure.exceptionhandler;
 
 import com.pragma.powerup.domain.exception.ValidationException;
+import com.pragma.powerup.domain.exception.NotFoundException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,6 +24,11 @@ public class ControllerAdvisor {
     @ExceptionHandler(ValidationException.class)
     ResponseEntity<Map<String, Object>> businessValidation(ValidationException exception) {
         return ResponseEntity.badRequest().body(errorBody(exception.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    ResponseEntity<Map<String, Object>> notFound(NotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody(exception.getMessage()));
     }
 
     private Map<String, Object> errorBody(String message) {

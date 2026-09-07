@@ -23,6 +23,27 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UserResponseEnvelope' }
         '400': { description: Datos inválidos, propietario menor de edad, email o documento duplicado, content: { application/json: { schema: { $ref: '#/components/schemas/ExceptionResponse' } } } }
+  /users/{userId}/role:
+    get:
+      operationId: getUserRole
+      summary: Consultar el rol de un usuario
+      description: Obtener rol de un usuario, usado por el microservicio de plazoleta para validar propietarios.
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer, format: int64, minimum: 1 }
+      responses:
+        '200':
+          description: Rol encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserRoleResponseEnvelope' }
+        '404':
+          description: Usuario inexistente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExceptionResponse' }
 components:
   schemas:
     UserRequest:
@@ -50,6 +71,17 @@ components:
       type: object
       properties:
         data: { $ref: '#/components/schemas/UserResponse' }
+    UserRoleResponse:
+      type: object
+      required: [id, role]
+      properties:
+        id: { type: integer, format: int64 }
+        role: { type: string, enum: [ADMIN, OWNER, EMPLOYEE, CUSTOMER] }
+    UserRoleResponseEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/UserRoleResponse' }
     ExceptionResponse:
       type: object
       properties:

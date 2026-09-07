@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import com.pragma.powerup.domain.enums.RoleEnum;
 import com.pragma.powerup.domain.exception.ValidationException;
+import com.pragma.powerup.domain.exception.NotFoundException;
 import com.pragma.powerup.domain.model.Role;
 import com.pragma.powerup.domain.model.User;
 import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
 import com.pragma.powerup.domain.spi.IUserPersistencePort;
 import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +61,19 @@ class UserUseCaseTest {
         User user = validUser(RoleEnum.OWNER, LocalDate.of(2000, 1, 1));
         when(persistence.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(true);
         assertThatThrownBy(() -> useCase.createUser(user)).isInstanceOf(ValidationException.class);
+    }
+
+    @Test void getsAnExistingUser() {
+        User user = validUser(RoleEnum.OWNER, LocalDate.of(2000, 1, 1));
+        when(persistence.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThat(useCase.getUserById(1L)).isSameAs(user);
+    }
+
+    @Test void rejectsAnUnknownUser() {
+        when(persistence.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> useCase.getUserById(99L)).isInstanceOf(NotFoundException.class);
     }
 
     private User validUser(RoleEnum role, LocalDate birthDate) {

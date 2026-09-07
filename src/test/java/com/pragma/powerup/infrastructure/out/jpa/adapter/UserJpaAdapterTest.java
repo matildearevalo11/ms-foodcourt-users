@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class UserJpaAdapterTest {
@@ -27,10 +28,12 @@ class UserJpaAdapterTest {
         when(mapper.toDomain(entity)).thenReturn(saved);
         when(repository.existsByEmailIgnoreCase("ana@example.com")).thenReturn(true);
         when(repository.existsByIdentityDocument("123")).thenReturn(true);
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
         UserJpaAdapter adapter = new UserJpaAdapter(repository, mapper);
 
         assertThat(adapter.save(user)).isSameAs(saved);
         assertThat(adapter.existsByEmail("ana@example.com")).isTrue();
         assertThat(adapter.existsByIdentityDocument("123")).isTrue();
+        assertThat(adapter.findById(1L)).containsSame(saved);
     }
 }

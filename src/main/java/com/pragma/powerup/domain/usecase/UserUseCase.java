@@ -8,6 +8,8 @@ import static com.pragma.powerup.domain.exception.ExceptionMessages.ROLE_NOT_ALL
 import com.pragma.powerup.domain.api.IUserServicePort;
 import com.pragma.powerup.domain.enums.RoleEnum;
 import com.pragma.powerup.domain.exception.ValidationException;
+import com.pragma.powerup.domain.exception.NotFoundException;
+import com.pragma.powerup.domain.exception.ExceptionMessages;
 import com.pragma.powerup.domain.model.Role;
 import com.pragma.powerup.domain.model.User;
 import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
@@ -34,6 +36,12 @@ public class UserUseCase implements IUserServicePort {
         user.setRole(new Role(targetRole));
         user.setPassword(passwordEncoderPort.encode(user.getPassword()));
         return persistencePort.save(user);
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        return persistencePort.findById(userId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND.getMessage()));
     }
 
     private void validateTargetRole(RoleEnum targetRole) {

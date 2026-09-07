@@ -2,12 +2,15 @@ package com.pragma.powerup.infrastructure.input.rest;
 
 import com.pragma.powerup.application.dto.request.UserRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
+import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
 import com.pragma.powerup.application.handler.IUserHandler;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,5 +26,10 @@ public class UserRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public DefaultResponse<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto request) {
         return new DefaultResponse<>(handler.createUser(request));
+    }
+
+    @GetMapping(value = "/{userId}/role", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DefaultResponse<UserRoleResponseDto> getUserRole(@PathVariable Long userId) {
+        return new DefaultResponse<>(handler.getUserRole(userId));
     }
 }
