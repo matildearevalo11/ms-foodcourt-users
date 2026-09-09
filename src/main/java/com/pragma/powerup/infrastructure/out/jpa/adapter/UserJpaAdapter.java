@@ -29,4 +29,9 @@ public class UserJpaAdapter implements IUserPersistencePort {
     @Override public Optional<User> findById(Long userId) {
         return repository.findById(userId).map(mapper::toDomain);
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmailIgnoreCase(email).map(mapper::toDomain);
+    }
 }

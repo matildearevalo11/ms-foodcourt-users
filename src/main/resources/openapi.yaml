@@ -5,7 +5,32 @@ info:
   description: Gestión de usuarios de la plazoleta de comidas.
 servers:
   - url: /api/v1
+security:
+  - bearerAuth: []
 paths:
+  /auth/login:
+    post:
+      operationId: login
+      summary: Iniciar sesión
+      description: Autentica mediante correo y contraseña.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseEnvelope'
+        '400':
+          description: Formato de solicitud inválido
+        '401':
+          description: Correo o contraseña incorrectos
   /users:
     post:
       operationId: createUser
@@ -23,6 +48,10 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UserResponseEnvelope' }
         '400': { description: Datos inválidos, propietario menor de edad, email o documento duplicado, content: { application/json: { schema: { $ref: '#/components/schemas/ExceptionResponse' } } } }
+        '401':
+          description: Token ausente o inválido
+        '403':
+          description: Se requiere rol ADMIN
   /users/{userId}/role:
     get:
       operationId: getUserRole
@@ -45,7 +74,38 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ExceptionResponse' }
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+    LoginResponseEnvelope:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/LoginResponse'
     UserRequest:
       type: object
       required: [name, lastName, identityDocument, cellphone, birthDate, email, password, roleId]

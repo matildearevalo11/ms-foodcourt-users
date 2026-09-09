@@ -4,6 +4,8 @@ import com.pragma.powerup.application.dto.request.UserRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
 import com.pragma.powerup.application.handler.IUserHandler;
+import com.pragma.powerup.domain.enums.RoleEnum;
+import com.pragma.powerup.infrastructure.security.RequireRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ public class UserRestController {
     private final IUserHandler handler;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequireRole(RoleEnum.ADMIN)
     @ResponseStatus(HttpStatus.CREATED)
     public DefaultResponse<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto request) {
         return new DefaultResponse<>(handler.createUser(request));

@@ -29,11 +29,13 @@ class UserJpaAdapterTest {
         when(repository.existsByEmailIgnoreCase("ana@example.com")).thenReturn(true);
         when(repository.existsByIdentityDocument("123")).thenReturn(true);
         when(repository.findById(1L)).thenReturn(Optional.of(entity));
+        when(repository.findByEmailIgnoreCase("ana@example.com")).thenReturn(Optional.of(entity));
         UserJpaAdapter adapter = new UserJpaAdapter(repository, mapper);
 
         assertThat(adapter.save(user)).isSameAs(saved);
         assertThat(adapter.existsByEmail("ana@example.com")).isTrue();
         assertThat(adapter.existsByIdentityDocument("123")).isTrue();
         assertThat(adapter.findById(1L)).containsSame(saved);
+        assertThat(adapter.findByEmail("ana@example.com")).containsSame(saved);
     }
 }
