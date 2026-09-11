@@ -53,6 +53,34 @@ paths:
           description: Token ausente o inválido
         '403':
           description: Se requiere rol ADMIN
+  /users/employees:
+    post:
+      operationId: createEmployee
+      summary: Crear un empleado
+      description: Crea un empleado y lo asocia a un restaurante del propietario autenticado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeRequest'
+      responses:
+        '201':
+          description: Empleado creado y asociado al restaurante
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseEnvelope'
+        '400':
+          description: Datos inválidos, correo o documento duplicado
+        '401':
+          description: Token ausente o inválido
+        '403':
+          description: El usuario no es propietario del restaurante
+        '404':
+          description: El restaurante no existe
+        '503':
+          description: El microservicio de plazoleta no está disponible
   /users/{userId}/role:
     get:
       operationId: getUserRole
@@ -125,6 +153,47 @@ components:
         birthDate: { type: string, format: date }
         email: { type: string, format: email }
         password: { type: string, format: password, writeOnly: true }
+    EmployeeRequest:
+      type: object
+      required:
+        - name
+        - lastName
+        - identityDocument
+        - cellphone
+        - email
+        - password
+        - roleId
+        - restaurantId
+      properties:
+        name:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        identityDocument:
+          type: string
+          pattern: '^\d+$'
+        cellphone:
+          type: string
+          maxLength: 13
+          pattern: '^\+?\d+$'
+          example: '+573005698325'
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+        roleId:
+          type: integer
+          format: int64
+          example: 3
+        restaurantId:
+          type: integer
+          format: int64
+          minimum: 1
     UserResponse:
       type: object
       properties:

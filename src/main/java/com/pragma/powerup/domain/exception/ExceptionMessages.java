@@ -12,7 +12,11 @@ public enum ExceptionMessages {
     USER_NOT_FOUND("The requested user does not exist"),
     INVALID_CREDENTIALS("Invalid email or password"),
     AUTHENTICATED_USER_NOT_FOUND("Authenticated user not found"),
-    ACCESS_DENIED("The authenticated user does not have permission to perform this action");
+    ACCESS_DENIED("The authenticated user does not have permission to perform this action"),
+    RESTAURANT_NOT_FOUND("The requested restaurant does not exist"),
+    RESTAURANT_OWNER_REQUIRED("Only the restaurant owner can create its employees"),
+    FOODCOURT_SERVICE_UNAVAILABLE("Food court service is unavailable"),
+    INVALID_EMPLOYEE_ROLE("Role id must correspond to EMPLOYEE");
 
     private final String message;
 }

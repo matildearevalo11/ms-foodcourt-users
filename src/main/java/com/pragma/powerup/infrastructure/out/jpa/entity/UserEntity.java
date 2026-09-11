@@ -12,13 +12,34 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UserEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
-    @Column(nullable = false) private String name;
-    @Column(name = "last_name", nullable = false) private String lastName;
-    @Column(name = "identity_document", nullable = false, unique = true, length = 30) private String identityDocument;
-    @Column(nullable = false, length = 13) private String cellphone;
-    @Column(name = "birth_date", nullable = false) private LocalDate birthDate;
-    @Column(nullable = false, unique = true, length = 254) private String email;
-    @Column(nullable = false) private String password;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "role_id", nullable = false) private RoleEntity role;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @Column(name = "identity_document", nullable = false, unique = true, length = 30)
+    private String identityDocument;
+
+    @Column(nullable = false, length = 13)
+    private String cellphone;
+
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
+
+    @Column(nullable = false, unique = true, length = 254)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleEntity role;
+
+    @Column(name = "restaurant_id")
+    private Long restaurantId;
 }

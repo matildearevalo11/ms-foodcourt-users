@@ -10,6 +10,7 @@ import com.pragma.powerup.domain.model.Role;
 import com.pragma.powerup.domain.model.User;
 import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
 import com.pragma.powerup.domain.spi.IUserPersistencePort;
+import com.pragma.powerup.domain.spi.IRestaurantValidationPort;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,9 +23,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserUseCaseTest {
     @Mock IUserPersistencePort persistence;
     @Mock IPasswordEncoderPort encoder;
+    @Mock IRestaurantValidationPort restaurantValidationPort;
     private UserUseCase useCase;
 
-    @BeforeEach void setUp() { useCase = new UserUseCase(persistence, encoder); }
+    @BeforeEach void setUp() {
+        useCase = new UserUseCase(persistence, encoder, restaurantValidationPort);
+    }
 
     @Test void createsOwnerWithNormalizedDataAndEncryptedPassword() {
         User user = validUser(LocalDate.of(2000, 1, 1));
@@ -43,6 +47,35 @@ class UserUseCaseTest {
     @Test void ownerMustBeAtLeastEighteen() {
         assertThatThrownBy(() -> useCase.createOwner(validUser(LocalDate.now().minusYears(18).plusDays(1))))
                 .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void createsEmployeeForOwnedRestaurantWithEncryptedPassword() {
+        User employee = validUser(null);
+        employee.setRestaurantId(5L);
+        employee.setEmail(" EMPLOYEE@Example.COM ");
+        when(encoder.encode("secret")).thenReturn("bcrypt-hash");
+        when(persistence.save(employee)).thenAnswer(invocation -> {
+            employee.setId(9L);
+            return employee;
+        });
+
+        User result = useCase.createEmployee(employee, RoleEnum.EMPLOYEE.getId());
+
+        assertThat(result.getRole().getName()).isEqualTo("EMPLOYEE");
+        assertThat(result.getEmail()).isEqualTo("employee@example.com");
+        assertThat(result.getPassword()).isEqualTo("bcrypt-hash");
+        verify(restaurantValidationPort).validateOwnership(5L);
+    }
+
+    @Test
+    void employeeRoleMustBeRequested() {
+        User employee = validUser(null);
+        employee.setRestaurantId(5L);
+
+        assertThatThrownBy(() -> useCase.createEmployee(employee, RoleEnum.OWNER.getId()))
+                .isInstanceOf(ValidationException.class);
+        verifyNoInteractions(restaurantValidationPort, encoder, persistence);
     }
 
     @Test void duplicatedEmailIsInvalid() {

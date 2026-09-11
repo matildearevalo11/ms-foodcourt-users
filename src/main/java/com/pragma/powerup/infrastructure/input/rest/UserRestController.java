@@ -1,5 +1,6 @@
 package com.pragma.powerup.infrastructure.input.rest;
 
+import com.pragma.powerup.application.dto.request.EmployeeRequestDto;
 import com.pragma.powerup.application.dto.request.OwnerRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
@@ -29,6 +30,13 @@ public class UserRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public DefaultResponse<UserResponseDto> createOwner(@Valid @RequestBody OwnerRequestDto request) {
         return new DefaultResponse<>(handler.createOwner(request));
+    }
+
+    @PostMapping(value = "/employees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequireRole(RoleEnum.OWNER)
+    @ResponseStatus(HttpStatus.CREATED)
+    public DefaultResponse<UserResponseDto> createEmployee(@Valid @RequestBody EmployeeRequestDto request) {
+        return new DefaultResponse<>(handler.createEmployee(request));
     }
 
     @GetMapping(value = "/{userId}/role", produces = MediaType.APPLICATION_JSON_VALUE)

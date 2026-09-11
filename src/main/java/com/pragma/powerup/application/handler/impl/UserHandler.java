@@ -1,5 +1,6 @@
 package com.pragma.powerup.application.handler.impl;
 
+import com.pragma.powerup.application.dto.request.EmployeeRequestDto;
 import com.pragma.powerup.application.dto.request.OwnerRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
@@ -24,6 +25,11 @@ public class UserHandler implements IUserHandler {
     @Override
     public UserResponseDto createOwner(OwnerRequestDto request) {
         return responseMapper.toResponse(servicePort.createOwner(requestMapper.toUser(request)));
+    }
+
+    @Override
+    public UserResponseDto createEmployee(EmployeeRequestDto request) {
+        return responseMapper.toResponse(servicePort.createEmployee(requestMapper.toUser(request), request.roleId()));
     }
 
     @Override

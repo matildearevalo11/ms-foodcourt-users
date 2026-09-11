@@ -12,6 +12,7 @@ import com.pragma.powerup.domain.exception.ExceptionMessages;
 import com.pragma.powerup.domain.model.Role;
 import com.pragma.powerup.domain.model.User;
 import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
+import com.pragma.powerup.domain.spi.IRestaurantValidationPort;
 import com.pragma.powerup.domain.spi.IUserPersistencePort;
 import java.time.LocalDate;
 
@@ -19,10 +20,13 @@ public class UserUseCase implements IUserServicePort {
     private static final int MINIMUM_AGE = 18;
     private final IUserPersistencePort persistencePort;
     private final IPasswordEncoderPort passwordEncoderPort;
+    private final IRestaurantValidationPort restaurantValidationPort;
 
-    public UserUseCase(IUserPersistencePort persistencePort, IPasswordEncoderPort passwordEncoderPort) {
+    public UserUseCase(IUserPersistencePort persistencePort, IPasswordEncoderPort passwordEncoderPort,
+                       IRestaurantValidationPort restaurantValidationPort) {
         this.persistencePort = persistencePort;
         this.passwordEncoderPort = passwordEncoderPort;
+        this.restaurantValidationPort = restaurantValidationPort;
     }
 
     @Override
@@ -31,6 +35,17 @@ public class UserUseCase implements IUserServicePort {
         validateAdult(user.getBirthDate());
         validateUniqueness(user);
         user.setRole(new Role(RoleEnum.OWNER));
+        user.setPassword(passwordEncoderPort.encode(user.getPassword()));
+        return persistencePort.save(user);
+    }
+
+    @Override
+    public User createEmployee(User user, Long roleId) {
+        validateEmployeeRole(roleId);
+        restaurantValidationPort.validateOwnership(user.getRestaurantId());
+        normalize(user);
+        validateUniqueness(user);
+        user.setRole(new Role(RoleEnum.EMPLOYEE));
         user.setPassword(passwordEncoderPort.encode(user.getPassword()));
         return persistencePort.save(user);
     }
@@ -53,6 +68,12 @@ public class UserUseCase implements IUserServicePort {
         LocalDate today = LocalDate.now();
         if (birthDate == null || birthDate.isAfter(today.minusYears(MINIMUM_AGE))) {
             throw new ValidationException(USER_NOT_ADULT.getMessage());
+        }
+    }
+
+    private void validateEmployeeRole(Long roleId) {
+        if (!RoleEnum.EMPLOYEE.getId().equals(roleId)) {
+            throw new ValidationException(ExceptionMessages.INVALID_EMPLOYEE_ROLE.getMessage());
         }
     }
 

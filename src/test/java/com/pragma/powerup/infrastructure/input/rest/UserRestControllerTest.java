@@ -60,6 +60,24 @@ class UserRestControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void onlyOwnerCreatesEmployees() throws Exception {
+        when(handler.createEmployee(any())).thenReturn(
+                new UserResponseDto(9L, "Luis", "Pérez", "luis@example.com", 3L, "EMPLOYEE"));
+
+        mvc.perform(post("/users/employees")
+                        .with(jwt().jwt(token -> token.subject("7").claim("role", "OWNER"))
+                                .authorities(new SimpleGrantedAuthority("ROLE_OWNER")))
+                        .contentType(MediaType.APPLICATION_JSON).content(employeeBody()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.role").value("EMPLOYEE"));
+
+        mvc.perform(post("/users/employees")
+                        .with(adminJwt())
+                        .contentType(MediaType.APPLICATION_JSON).content(employeeBody()))
+                .andExpect(status().isForbidden());
+    }
+
     private org.springframework.test.web.servlet.request.RequestPostProcessor adminJwt() {
         return jwt().jwt(token -> token.subject("1").claim("role", "ADMIN"))
                 .authorities(new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -69,6 +87,13 @@ class UserRestControllerTest {
         return """
                 {"name":"Ana","lastName":"Admin","identityDocument":"123456","cellphone":"+573001234567",
                  "birthDate":"2000-01-01","email":"ana@example.com","password":"secret"}
+                """;
+    }
+
+    private String employeeBody() {
+        return """
+                {"name":"Luis","lastName":"Pérez","identityDocument":"987654","cellphone":"3001234567",
+                 "email":"luis@example.com","password":"secret","roleId":3,"restaurantId":5}
                 """;
     }
 }

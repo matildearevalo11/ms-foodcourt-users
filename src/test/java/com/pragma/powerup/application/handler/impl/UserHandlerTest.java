@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.pragma.powerup.application.dto.request.OwnerRequestDto;
+import com.pragma.powerup.application.dto.request.EmployeeRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
 import com.pragma.powerup.application.mapper.IUserRequestMapper;
@@ -51,5 +52,21 @@ class UserHandlerTest {
         UserHandler handler = new UserHandler(servicePort, requestMapper, responseMapper, roleResponseMapper);
 
         assertThat(handler.getUserRole(1L)).isEqualTo(expected);
+    }
+
+    @Test
+    void delegatesEmployeeCreationWithRestaurantId() {
+        EmployeeRequestDto request = new EmployeeRequestDto("Luis", "Pérez", "456", "3001234567",
+                "luis@example.com", "secret", 3L, 5L);
+        User mapped = new User();
+        User saved = new User();
+        UserResponseDto expected = new UserResponseDto(9L, "Luis", "Pérez", "luis@example.com", 3L, "EMPLOYEE");
+        when(requestMapper.toUser(request)).thenReturn(mapped);
+        when(servicePort.createEmployee(mapped, 3L)).thenReturn(saved);
+        when(responseMapper.toResponse(saved)).thenReturn(expected);
+        UserHandler handler = new UserHandler(servicePort, requestMapper, responseMapper, roleResponseMapper);
+
+        assertThat(handler.createEmployee(request)).isEqualTo(expected);
+        verify(servicePort).createEmployee(mapped, 3L);
     }
 }

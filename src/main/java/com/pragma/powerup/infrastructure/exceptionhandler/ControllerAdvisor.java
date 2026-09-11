@@ -4,6 +4,7 @@ import com.pragma.powerup.domain.exception.ValidationException;
 import com.pragma.powerup.domain.exception.AuthenticationException;
 import com.pragma.powerup.domain.exception.AuthorizationException;
 import com.pragma.powerup.domain.exception.NotFoundException;
+import com.pragma.powerup.domain.exception.ExternalServiceException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,6 +42,11 @@ public class ControllerAdvisor {
     @ExceptionHandler(AuthorizationException.class)
     ResponseEntity<Map<String, Object>> authorization(AuthorizationException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorBody(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    ResponseEntity<Map<String, Object>> externalService(ExternalServiceException exception) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorBody(exception.getMessage()));
     }
 
     private Map<String, Object> errorBody(String message) {

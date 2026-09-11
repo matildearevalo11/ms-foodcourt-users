@@ -10,7 +10,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate.jdbc.time_zone: UTC
   flyway:
@@ -36,6 +36,11 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     enabled: false
+clients:
+  foodcourt:
+    base-url: ${FOODCOURT_SERVICE_URL:http://localhost:8082/api/v1}
+    connect-timeout: ${FOODCOURT_CONNECT_TIMEOUT:2s}
+    read-timeout: ${FOODCOURT_READ_TIMEOUT:3s}
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:1h}
