@@ -1,6 +1,6 @@
 package com.pragma.powerup.infrastructure.input.rest;
 
-import com.pragma.powerup.application.dto.request.UserRequestDto;
+import com.pragma.powerup.application.dto.request.OwnerRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
 import com.pragma.powerup.application.handler.IUserHandler;
@@ -24,11 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserRestController {
     private final IUserHandler handler;
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/owners", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @RequireRole(RoleEnum.ADMIN)
     @ResponseStatus(HttpStatus.CREATED)
-    public DefaultResponse<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto request) {
-        return new DefaultResponse<>(handler.createUser(request));
+    public DefaultResponse<UserResponseDto> createOwner(@Valid @RequestBody OwnerRequestDto request) {
+        return new DefaultResponse<>(handler.createOwner(request));
     }
 
     @GetMapping(value = "/{userId}/role", produces = MediaType.APPLICATION_JSON_VALUE)

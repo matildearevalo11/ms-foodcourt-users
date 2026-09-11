@@ -31,16 +31,17 @@ paths:
           description: Formato de solicitud inválido
         '401':
           description: Correo o contraseña incorrectos
-  /users:
+  /users/owners:
     post:
-      operationId: createUser
-      summary: Crear un usuario
-      description: En HU-01 solamente se permite crear usuarios OWNER (roleId 2).
+      operationId: createOwner
+      summary: Crear un propietario
+      description: Crea un usuario propietario..
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/UserRequest' }
+            schema:
+              $ref: '#/components/schemas/OwnerRequest'
       responses:
         '201':
           description: Propietario creado
@@ -106,9 +107,16 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/LoginResponse'
-    UserRequest:
+    OwnerRequest:
       type: object
-      required: [name, lastName, identityDocument, cellphone, birthDate, email, password, roleId]
+      required:
+        - name
+        - lastName
+        - identityDocument
+        - cellphone
+        - birthDate
+        - email
+        - password
       properties:
         name: { type: string, minLength: 1 }
         lastName: { type: string, minLength: 1 }
@@ -117,7 +125,6 @@ components:
         birthDate: { type: string, format: date }
         email: { type: string, format: email }
         password: { type: string, format: password, writeOnly: true }
-        roleId: { type: integer, format: int64, description: 'HU-01: 2 (OWNER)', example: 2 }
     UserResponse:
       type: object
       properties:

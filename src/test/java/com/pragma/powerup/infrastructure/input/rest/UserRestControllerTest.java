@@ -27,15 +27,15 @@ class UserRestControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean IUserHandler handler;
     @Test void createsOwner() throws Exception {
-        when(handler.createUser(any())).thenReturn(new UserResponseDto(1L, "Ana", "Admin", "ana@example.com", 2L, "OWNER"));
-        mvc.perform(post("/users")
+        when(handler.createOwner(any())).thenReturn(new UserResponseDto(1L, "Ana", "Admin", "ana@example.com", 2L, "OWNER"));
+        mvc.perform(post("/users/owners")
                         .with(adminJwt())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.data.role").value("OWNER"));
     }
 
     @Test void invalidFieldsReturnBadRequest() throws Exception {
-        mvc.perform(post("/users")
+        mvc.perform(post("/users/owners")
                         .with(adminJwt())
                         .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors").isMap());
@@ -51,10 +51,10 @@ class UserRestControllerTest {
 
     @Test
     void onlyAdministratorCreatesOwners() throws Exception {
-        mvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(validBody()))
+        mvc.perform(post("/users/owners").contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isUnauthorized());
 
-        mvc.perform(post("/users")
+        mvc.perform(post("/users/owners")
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_OWNER")))
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isForbidden());
@@ -68,7 +68,7 @@ class UserRestControllerTest {
     private String validBody() {
         return """
                 {"name":"Ana","lastName":"Admin","identityDocument":"123456","cellphone":"+573001234567",
-                 "birthDate":"2000-01-01","email":"ana@example.com","password":"secret","roleId":2}
+                 "birthDate":"2000-01-01","email":"ana@example.com","password":"secret"}
                 """;
     }
 }

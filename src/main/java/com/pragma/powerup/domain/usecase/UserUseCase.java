@@ -3,7 +3,6 @@ package com.pragma.powerup.domain.usecase;
 import static com.pragma.powerup.domain.exception.ExceptionMessages.EMAIL_ALREADY_EXISTS;
 import static com.pragma.powerup.domain.exception.ExceptionMessages.IDENTITY_ALREADY_EXISTS;
 import static com.pragma.powerup.domain.exception.ExceptionMessages.USER_NOT_ADULT;
-import static com.pragma.powerup.domain.exception.ExceptionMessages.ROLE_NOT_ALLOWED;
 
 import com.pragma.powerup.domain.api.IUserServicePort;
 import com.pragma.powerup.domain.enums.RoleEnum;
@@ -27,13 +26,11 @@ public class UserUseCase implements IUserServicePort {
     }
 
     @Override
-    public User createUser(User user) {
-        RoleEnum targetRole = RoleEnum.fromId(user.getRole().getId());
-        validateTargetRole(targetRole);
+    public User createOwner(User user) {
         normalize(user);
         validateAdult(user.getBirthDate());
         validateUniqueness(user);
-        user.setRole(new Role(targetRole));
+        user.setRole(new Role(RoleEnum.OWNER));
         user.setPassword(passwordEncoderPort.encode(user.getPassword()));
         return persistencePort.save(user);
     }
@@ -42,12 +39,6 @@ public class UserUseCase implements IUserServicePort {
     public User getUserById(Long userId) {
         return persistencePort.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND.getMessage()));
-    }
-
-    private void validateTargetRole(RoleEnum targetRole) {
-        if (targetRole != RoleEnum.OWNER) {
-            throw new ValidationException(ROLE_NOT_ALLOWED.getMessage());
-        }
     }
 
     private void normalize(User user) {

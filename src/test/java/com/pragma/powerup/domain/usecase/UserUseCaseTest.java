@@ -27,12 +27,12 @@ class UserUseCaseTest {
     @BeforeEach void setUp() { useCase = new UserUseCase(persistence, encoder); }
 
     @Test void createsOwnerWithNormalizedDataAndEncryptedPassword() {
-        User user = validUser(RoleEnum.OWNER, LocalDate.of(2000, 1, 1));
+        User user = validUser(LocalDate.of(2000, 1, 1));
         user.setEmail("  OWNER@Example.COM ");
         when(encoder.encode("secret")).thenReturn("bcrypt-hash");
         when(persistence.save(user)).thenReturn(user);
 
-        User result = useCase.createUser(user);
+        User result = useCase.createOwner(user);
 
         assertThat(result.getRole().getName()).isEqualTo("OWNER");
         assertThat(result.getEmail()).isEqualTo("owner@example.com");
@@ -40,31 +40,26 @@ class UserUseCaseTest {
         verify(persistence).save(user);
     }
 
-    @Test void onlyOwnerRoleCanBeCreatedInHu01() {
-        assertThatThrownBy(() -> useCase.createUser(validUser(RoleEnum.EMPLOYEE, LocalDate.of(2000, 1, 1))))
-                .isInstanceOf(ValidationException.class);
-    }
-
     @Test void ownerMustBeAtLeastEighteen() {
-        assertThatThrownBy(() -> useCase.createUser(validUser(RoleEnum.OWNER, LocalDate.now().minusYears(18).plusDays(1))))
+        assertThatThrownBy(() -> useCase.createOwner(validUser(LocalDate.now().minusYears(18).plusDays(1))))
                 .isInstanceOf(ValidationException.class);
     }
 
     @Test void duplicatedEmailIsInvalid() {
-        User user = validUser(RoleEnum.OWNER, LocalDate.of(2000, 1, 1));
+        User user = validUser(LocalDate.of(2000, 1, 1));
         when(persistence.existsByEmail(user.getEmail())).thenReturn(true);
-        assertThatThrownBy(() -> useCase.createUser(user)).isInstanceOf(ValidationException.class);
+        assertThatThrownBy(() -> useCase.createOwner(user)).isInstanceOf(ValidationException.class);
         verify(encoder, never()).encode(anyString());
     }
 
     @Test void duplicatedDocumentIsInvalid() {
-        User user = validUser(RoleEnum.OWNER, LocalDate.of(2000, 1, 1));
+        User user = validUser(LocalDate.of(2000, 1, 1));
         when(persistence.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(true);
-        assertThatThrownBy(() -> useCase.createUser(user)).isInstanceOf(ValidationException.class);
+        assertThatThrownBy(() -> useCase.createOwner(user)).isInstanceOf(ValidationException.class);
     }
 
     @Test void getsAnExistingUser() {
-        User user = validUser(RoleEnum.OWNER, LocalDate.of(2000, 1, 1));
+        User user = validUser(LocalDate.of(2000, 1, 1));
         when(persistence.findById(1L)).thenReturn(Optional.of(user));
 
         assertThat(useCase.getUserById(1L)).isSameAs(user);
@@ -76,10 +71,10 @@ class UserUseCaseTest {
         assertThatThrownBy(() -> useCase.getUserById(99L)).isInstanceOf(NotFoundException.class);
     }
 
-    private User validUser(RoleEnum role, LocalDate birthDate) {
+    private User validUser(LocalDate birthDate) {
         User user = new User(); user.setName(" Ana "); user.setLastName(" Admin ");
         user.setIdentityDocument("123456"); user.setCellphone("+573001234567");
         user.setBirthDate(birthDate); user.setEmail("owner@example.com"); user.setPassword("secret");
-        user.setRole(new Role(role.getId(), null)); return user;
+        return user;
     }
 }

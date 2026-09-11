@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.pragma.powerup.application.dto.request.UserRequestDto;
+import com.pragma.powerup.application.dto.request.OwnerRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
 import com.pragma.powerup.application.mapper.IUserRequestMapper;
@@ -27,19 +27,19 @@ class UserHandlerTest {
 
     @Test
     void delegatesMappingAndCreationToTheApplicationPorts() {
-        UserRequestDto request = new UserRequestDto("Ana", "Rojas", "123", "+573001234567",
-                LocalDate.of(1990, 1, 1), "ana@example.com", "secret", 2L);
+        OwnerRequestDto request = new OwnerRequestDto("Ana", "Rojas", "123", "+573001234567",
+                LocalDate.of(1990, 1, 1), "ana@example.com", "secret");
         User mapped = new User();
         User saved = new User();
         UserResponseDto expected = new UserResponseDto(1L, "Ana", "Rojas", "ana@example.com", 2L, "OWNER");
         when(requestMapper.toUser(request)).thenReturn(mapped);
-        when(servicePort.createUser(mapped)).thenReturn(saved);
+        when(servicePort.createOwner(mapped)).thenReturn(saved);
         when(responseMapper.toResponse(saved)).thenReturn(expected);
 
         UserHandler handler = new UserHandler(servicePort, requestMapper, responseMapper, roleResponseMapper);
 
-        assertThat(handler.createUser(request)).isEqualTo(expected);
-        verify(servicePort).createUser(mapped);
+        assertThat(handler.createOwner(request)).isEqualTo(expected);
+        verify(servicePort).createOwner(mapped);
     }
 
     @Test
