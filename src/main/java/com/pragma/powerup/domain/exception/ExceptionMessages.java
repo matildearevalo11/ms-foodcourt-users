@@ -16,7 +16,8 @@ public enum ExceptionMessages {
     RESTAURANT_NOT_FOUND("The requested restaurant does not exist"),
     RESTAURANT_OWNER_REQUIRED("Only the restaurant owner can create its employees"),
     FOODCOURT_SERVICE_UNAVAILABLE("Food court service is unavailable"),
-    INVALID_EMPLOYEE_ROLE("Role id must correspond to EMPLOYEE");
+    INVALID_EMPLOYEE_ROLE("Role id must correspond to EMPLOYEE"),
+    INVALID_CUSTOMER_ROLE("Role id must correspond to CUSTOMER");
 
     private final String message;
 }

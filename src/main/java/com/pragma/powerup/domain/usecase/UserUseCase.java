@@ -6,9 +6,9 @@ import static com.pragma.powerup.domain.exception.ExceptionMessages.USER_NOT_ADU
 
 import com.pragma.powerup.domain.api.IUserServicePort;
 import com.pragma.powerup.domain.enums.RoleEnum;
-import com.pragma.powerup.domain.exception.ValidationException;
-import com.pragma.powerup.domain.exception.NotFoundException;
 import com.pragma.powerup.domain.exception.ExceptionMessages;
+import com.pragma.powerup.domain.exception.NotFoundException;
+import com.pragma.powerup.domain.exception.ValidationException;
 import com.pragma.powerup.domain.model.Role;
 import com.pragma.powerup.domain.model.User;
 import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
@@ -41,11 +41,21 @@ public class UserUseCase implements IUserServicePort {
 
     @Override
     public User createEmployee(User user, Long roleId) {
-        validateEmployeeRole(roleId);
+        validateRole(roleId, RoleEnum.EMPLOYEE, ExceptionMessages.INVALID_EMPLOYEE_ROLE);
         restaurantValidationPort.validateOwnership(user.getRestaurantId());
         normalize(user);
         validateUniqueness(user);
         user.setRole(new Role(RoleEnum.EMPLOYEE));
+        user.setPassword(passwordEncoderPort.encode(user.getPassword()));
+        return persistencePort.save(user);
+    }
+
+    @Override
+    public User createCustomer(User user, Long roleId) {
+        validateRole(roleId, RoleEnum.CUSTOMER, ExceptionMessages.INVALID_CUSTOMER_ROLE);
+        normalize(user);
+        validateUniqueness(user);
+        user.setRole(new Role(RoleEnum.CUSTOMER));
         user.setPassword(passwordEncoderPort.encode(user.getPassword()));
         return persistencePort.save(user);
     }
@@ -71,9 +81,9 @@ public class UserUseCase implements IUserServicePort {
         }
     }
 
-    private void validateEmployeeRole(Long roleId) {
-        if (!RoleEnum.EMPLOYEE.getId().equals(roleId)) {
-            throw new ValidationException(ExceptionMessages.INVALID_EMPLOYEE_ROLE.getMessage());
+    private void validateRole(Long roleId, RoleEnum expectedRole, ExceptionMessages message) {
+        if (!expectedRole.getId().equals(roleId)) {
+            throw new ValidationException(message.getMessage());
         }
     }
 

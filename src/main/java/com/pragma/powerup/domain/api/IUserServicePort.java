@@ -7,5 +7,7 @@ public interface IUserServicePort {
 
     User createEmployee(User user, Long roleId);
 
+    User createCustomer(User user, Long roleId);
+
     User getUserById(Long userId);
 }

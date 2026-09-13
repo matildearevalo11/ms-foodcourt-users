@@ -1,5 +1,6 @@
 package com.pragma.powerup.application.handler.impl;
 
+import com.pragma.powerup.application.dto.request.CustomerRequestDto;
 import com.pragma.powerup.application.dto.request.EmployeeRequestDto;
 import com.pragma.powerup.application.dto.request.OwnerRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
@@ -9,9 +10,9 @@ import com.pragma.powerup.application.mapper.IUserRequestMapper;
 import com.pragma.powerup.application.mapper.IUserResponseMapper;
 import com.pragma.powerup.application.mapper.IUserRoleResponseMapper;
 import com.pragma.powerup.domain.api.IUserServicePort;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
@@ -30,6 +31,11 @@ public class UserHandler implements IUserHandler {
     @Override
     public UserResponseDto createEmployee(EmployeeRequestDto request) {
         return responseMapper.toResponse(servicePort.createEmployee(requestMapper.toUser(request), request.roleId()));
+    }
+
+    @Override
+    public UserResponseDto createCustomer(CustomerRequestDto request) {
+        return responseMapper.toResponse(servicePort.createCustomer(requestMapper.toUser(request), request.roleId()));
     }
 
     @Override

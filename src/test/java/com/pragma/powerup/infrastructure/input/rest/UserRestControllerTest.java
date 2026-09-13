@@ -78,6 +78,28 @@ class UserRestControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void createsCustomerWithoutAuthentication() throws Exception {
+        when(handler.createCustomer(any())).thenReturn(
+                new UserResponseDto(10L, "Laura", "Gómez", "laura@example.com", 4L, "CUSTOMER"));
+
+        mvc.perform(post("/users/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(customerBody()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.role").value("CUSTOMER"));
+    }
+
+    @Test
+    void validatesCustomerRequest() throws Exception {
+        mvc.perform(post("/users/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.name").exists())
+                .andExpect(jsonPath("$.errors.roleId").exists());
+    }
+
     private org.springframework.test.web.servlet.request.RequestPostProcessor adminJwt() {
         return jwt().jwt(token -> token.subject("1").claim("role", "ADMIN"))
                 .authorities(new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -94,6 +116,13 @@ class UserRestControllerTest {
         return """
                 {"name":"Luis","lastName":"Pérez","identityDocument":"987654","cellphone":"3001234567",
                  "email":"luis@example.com","password":"secret","roleId":3,"restaurantId":5}
+                """;
+    }
+
+    private String customerBody() {
+        return """
+                {"name":"Laura","lastName":"Gómez","identityDocument":"456789","cellphone":"3004567890",
+                 "email":"laura@example.com","password":"secret","roleId":4}
                 """;
     }
 }

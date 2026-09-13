@@ -78,6 +78,31 @@ class UserUseCaseTest {
         verifyNoInteractions(restaurantValidationPort, encoder, persistence);
     }
 
+    @Test
+    void createsCustomerWithNormalizedDataAndEncryptedPassword() {
+        User customer = validUser(null);
+        customer.setEmail(" CUSTOMER@Example.COM ");
+        when(encoder.encode("secret")).thenReturn("bcrypt-hash");
+        when(persistence.save(customer)).thenReturn(customer);
+
+        User result = useCase.createCustomer(customer, RoleEnum.CUSTOMER.getId());
+
+        assertThat(result.getRole().getName()).isEqualTo("CUSTOMER");
+        assertThat(result.getEmail()).isEqualTo("customer@example.com");
+        assertThat(result.getPassword()).isEqualTo("bcrypt-hash");
+        assertThat(result.getRestaurantId()).isNull();
+        verify(persistence).save(customer);
+    }
+
+    @Test
+    void customerRoleMustBeRequested() {
+        User customer = validUser(null);
+
+        assertThatThrownBy(() -> useCase.createCustomer(customer, RoleEnum.OWNER.getId()))
+                .isInstanceOf(ValidationException.class);
+        verifyNoInteractions(restaurantValidationPort, encoder, persistence);
+    }
+
     @Test void duplicatedEmailIsInvalid() {
         User user = validUser(LocalDate.of(2000, 1, 1));
         when(persistence.existsByEmail(user.getEmail())).thenReturn(true);

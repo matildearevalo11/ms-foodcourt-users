@@ -81,6 +81,27 @@ paths:
           description: El restaurante no existe
         '503':
           description: El microservicio de plazoleta no está disponible
+  /users/customers:
+    post:
+      operationId: createCustomer
+      summary: Crear un cliente
+      description: Crea una cuenta de cliente, no requiere autenticación.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '201':
+          description: Cliente creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseEnvelope'
+        '400':
+          description: Datos inválidos, rol incorrecto, correo o documento duplicado
   /users/{userId}/role:
     get:
       operationId: getUserRole
@@ -194,6 +215,44 @@ components:
           type: integer
           format: int64
           minimum: 1
+    CustomerRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - lastName
+        - identityDocument
+        - cellphone
+        - email
+        - password
+        - roleId
+      properties:
+        name:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        identityDocument:
+          type: string
+          pattern: '^\d+$'
+        cellphone:
+          type: string
+          maxLength: 13
+          pattern: '^\+?\d+$'
+          example: '+573005698325'
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+        roleId:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 4
     UserResponse:
       type: object
       properties:
