@@ -19,14 +19,16 @@ public class JwtTokenAdapter implements ITokenProviderPort {
     @Override
     public String generate(User user) {
         Instant issuedAt = Instant.now();
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
                 .issuedAt(issuedAt)
                 .expiresAt(issuedAt.plus(expiration))
                 .subject(user.getId().toString())
                 .claim("email", user.getEmail())
-                .claim("role", user.getRole().getName())
-                .build();
+                .claim("role", user.getRole().getName());
+        if (user.getRestaurantId() != null) {
+            claims.claim("restaurantId", user.getRestaurantId());
+        }
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
-        return encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+        return encoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
     }
 }

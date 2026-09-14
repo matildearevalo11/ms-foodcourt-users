@@ -20,13 +20,17 @@ class JwtTokenAdapterTest {
         SecretKeySpec key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         JwtTokenAdapter adapter = new JwtTokenAdapter(new NimbusJwtEncoder(new ImmutableSecret<>(key)), Duration.ofHours(1));
         User user = new User();
-        user.setId(7L); user.setEmail("owner@example.com"); user.setRole(new Role(2L, "OWNER"));
+        user.setId(7L);
+        user.setEmail("employee@example.com");
+        user.setRole(new Role(3L, "EMPLOYEE"));
+        user.setRestaurantId(5L);
 
         var jwt = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build()
                 .decode(adapter.generate(user));
 
         assertThat(jwt.getSubject()).isEqualTo("7");
-        assertThat(jwt.getClaimAsString("role")).isEqualTo("OWNER");
+        assertThat(jwt.getClaimAsString("role")).isEqualTo("EMPLOYEE");
+        assertThat(((Number) jwt.getClaim("restaurantId")).longValue()).isEqualTo(5L);
         assertThat(jwt.getExpiresAt()).isAfter(jwt.getIssuedAt());
     }
 }
