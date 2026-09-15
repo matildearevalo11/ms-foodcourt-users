@@ -123,12 +123,40 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ExceptionResponse' }
+  /users/{userId}/contact:
+    get:
+      operationId: getCustomerContact
+      summary: Consultar el contacto de un cliente
+      description: Entrega únicamente el teléfono requerido para notificar un pedido listo.
+      security:
+        - internalApiKey: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer, format: int64, minimum: 1 }
+      responses:
+        '200':
+          description: Contacto encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CustomerContactResponseEnvelope' }
+        '400':
+          description: El usuario no tiene rol CUSTOMER
+        '403':
+          description: Clave interna ausente o inválida
+        '404':
+          description: Usuario inexistente
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    internalApiKey:
+      type: apiKey
+      in: header
+      name: X-Internal-Api-Key
   schemas:
     LoginRequest:
       type: object
@@ -277,6 +305,17 @@ components:
       required: [data]
       properties:
         data: { $ref: '#/components/schemas/UserRoleResponse' }
+    CustomerContactResponse:
+      type: object
+      required: [id, cellphone]
+      properties:
+        id: { type: integer, format: int64 }
+        cellphone: { type: string, example: '+573005698325' }
+    CustomerContactResponseEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/CustomerContactResponse' }
     ExceptionResponse:
       type: object
       properties:

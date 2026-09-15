@@ -5,6 +5,7 @@ import com.pragma.powerup.application.dto.request.EmployeeRequestDto;
 import com.pragma.powerup.application.dto.request.OwnerRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
+import com.pragma.powerup.application.dto.response.CustomerContactResponseDto;
 import com.pragma.powerup.application.handler.IUserHandler;
 import com.pragma.powerup.application.mapper.IUserRequestMapper;
 import com.pragma.powerup.application.mapper.IUserResponseMapper;
@@ -42,5 +43,12 @@ public class UserHandler implements IUserHandler {
     @Transactional(readOnly = true)
     public UserRoleResponseDto getUserRole(Long userId) {
         return roleResponseMapper.toResponse(servicePort.getUserById(userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CustomerContactResponseDto getCustomerContact(Long userId) {
+        var customer = servicePort.getCustomerById(userId);
+        return new CustomerContactResponseDto(customer.getId(), customer.getCellphone());
     }
 }

@@ -17,7 +17,9 @@ public enum ExceptionMessages {
     RESTAURANT_OWNER_REQUIRED("Only the restaurant owner can create its employees"),
     FOODCOURT_SERVICE_UNAVAILABLE("Food court service is unavailable"),
     INVALID_EMPLOYEE_ROLE("Role id must correspond to EMPLOYEE"),
-    INVALID_CUSTOMER_ROLE("Role id must correspond to CUSTOMER");
+    INVALID_CUSTOMER_ROLE("Role id must correspond to CUSTOMER"),
+    CUSTOMER_ROLE_REQUIRED("The requested user is not a customer"),
+    INVALID_INTERNAL_API_KEY("Invalid internal service credential");
 
     private final String message;
 }

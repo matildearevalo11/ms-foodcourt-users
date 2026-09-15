@@ -129,6 +129,18 @@ class UserUseCaseTest {
         assertThatThrownBy(() -> useCase.getUserById(99L)).isInstanceOf(NotFoundException.class);
     }
 
+    @Test
+    void returnsOnlyCustomersForInternalContactQueries() {
+        User customer = validUser(null);
+        customer.setRole(new Role(RoleEnum.CUSTOMER.getId(), RoleEnum.CUSTOMER.name()));
+        when(persistence.findById(4L)).thenReturn(Optional.of(customer));
+
+        assertThat(useCase.getCustomerById(4L)).isSameAs(customer);
+
+        customer.setRole(new Role(RoleEnum.OWNER.getId(), RoleEnum.OWNER.name()));
+        assertThatThrownBy(() -> useCase.getCustomerById(4L)).isInstanceOf(ValidationException.class);
+    }
+
     private User validUser(LocalDate birthDate) {
         User user = new User(); user.setName(" Ana "); user.setLastName(" Admin ");
         user.setIdentityDocument("123456"); user.setCellphone("+573001234567");

@@ -5,6 +5,7 @@ import com.pragma.powerup.application.dto.request.EmployeeRequestDto;
 import com.pragma.powerup.application.dto.request.OwnerRequestDto;
 import com.pragma.powerup.application.dto.response.UserResponseDto;
 import com.pragma.powerup.application.dto.response.UserRoleResponseDto;
+import com.pragma.powerup.application.dto.response.CustomerContactResponseDto;
 import com.pragma.powerup.application.handler.IUserHandler;
 import com.pragma.powerup.domain.enums.RoleEnum;
 import com.pragma.powerup.infrastructure.security.RequireRole;
@@ -49,5 +50,10 @@ public class UserRestController {
     @GetMapping(value = "/{userId}/role", produces = MediaType.APPLICATION_JSON_VALUE)
     public DefaultResponse<UserRoleResponseDto> getUserRole(@PathVariable Long userId) {
         return new DefaultResponse<>(handler.getUserRole(userId));
+    }
+
+    @GetMapping(value = "/{userId}/contact", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DefaultResponse<CustomerContactResponseDto> getCustomerContact(@PathVariable Long userId) {
+        return new DefaultResponse<>(handler.getCustomerContact(userId));
     }
 }

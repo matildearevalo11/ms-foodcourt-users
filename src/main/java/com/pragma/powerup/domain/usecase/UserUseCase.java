@@ -66,6 +66,15 @@ public class UserUseCase implements IUserServicePort {
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND.getMessage()));
     }
 
+    @Override
+    public User getCustomerById(Long userId) {
+        User user = getUserById(userId);
+        if (user.getRole() == null || !RoleEnum.CUSTOMER.name().equals(user.getRole().getName())) {
+            throw new ValidationException(ExceptionMessages.CUSTOMER_ROLE_REQUIRED.getMessage());
+        }
+        return user;
+    }
+
     private void normalize(User user) {
         user.setName(user.getName().trim());
         user.setLastName(user.getLastName().trim());

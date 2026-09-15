@@ -10,4 +10,6 @@ public interface IUserServicePort {
     User createCustomer(User user, Long roleId);
 
     User getUserById(Long userId);
+
+    User getCustomerById(Long userId);
 }

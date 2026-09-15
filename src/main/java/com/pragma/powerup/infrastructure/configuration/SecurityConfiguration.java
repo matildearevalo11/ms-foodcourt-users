@@ -35,6 +35,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/auth/login", "/openapi.yaml", "/swagger-ui.html", "/swagger-ui/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/customers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/*/contact").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(resource -> resource.jwt(jwt ->
                         jwt.jwtAuthenticationConverter(converter)))
