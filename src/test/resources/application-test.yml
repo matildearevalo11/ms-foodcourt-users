@@ -4,3 +4,6 @@ spring:
 logging:
   level:
     root: WARN
+jwt:
+  secret: 0123456789abcdef0123456789abcdef
+  expiration: 1h
